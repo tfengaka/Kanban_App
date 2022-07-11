@@ -1,7 +1,7 @@
 import axios from 'axios';
 import queryString from 'query-string';
 
-const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/';
 const getToken = () => localStorage.getItem('token');
 
 const axiosClient = axios.create({

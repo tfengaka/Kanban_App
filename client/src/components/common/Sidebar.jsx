@@ -31,10 +31,12 @@ function Sidebar() {
   }, [dispatch]);
 
   useEffect(() => {
-    const activeItem = boards.findIndex((e) => e.id === id);
-    setActiveIndex(activeItem);
-    if (boards.length > 0 && id === undefined) {
-      navigate(`/boards/${boards[0].id}`);
+    if (boards.length > 0) {
+      if (id === undefined || id === '') {
+        navigate(`/boards/${boards[0].id}`);
+      }
+      const activeItem = boards.findIndex((e) => e.id === id);
+      setActiveIndex(activeItem);
     }
   }, [boards, id, navigate]);
 
@@ -74,7 +76,6 @@ function Sidebar() {
       variant="permanent"
       open={true}
       sx={{
-        boxShadow: 8,
         width: sidebarWidth,
         height: '100vh',
       }}
@@ -165,37 +166,38 @@ function Sidebar() {
           <Droppable key={'list-board-drop'} droppableId={'list-board-drop'}>
             {(provided) => (
               <div ref={provided.innerRef} {...provided.droppableProps}>
-                {boards.map((board, index) => (
-                  <Draggable key={board.id} draggableId={board.id} index={index}>
-                    {(provided, snapshot) => (
-                      <ListItem
-                        ref={provided.innerRef}
-                        {...provided.dragHandleProps}
-                        {...provided.draggableProps}
-                        selected={index === activeIndex}
-                        component={Link}
-                        to={`/boards/${board.id}`}
-                        sx={{
-                          pl: '20px',
-                          cursor: snapshot.isDragging ? 'grab' : 'pointer !important',
-                        }}
-                      >
-                        <Typography
-                          variant="body2"
-                          fontWeight="500"
+                {boards.length > 0 &&
+                  boards.map((board, index) => (
+                    <Draggable key={board.id} draggableId={board.id} index={index}>
+                      {(provided, snapshot) => (
+                        <ListItem
+                          ref={provided.innerRef}
+                          {...provided.dragHandleProps}
+                          {...provided.draggableProps}
+                          selected={index === activeIndex}
+                          component={Link}
+                          to={`/boards/${board.id}`}
                           sx={{
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            color: (theme) => (theme.palette.mode === 'dark' ? '#fff' : '#000'),
+                            pl: '20px',
+                            cursor: snapshot.isDragging ? 'grab' : 'pointer !important',
                           }}
                         >
-                          {board.icon} {board.title}
-                        </Typography>
-                      </ListItem>
-                    )}
-                  </Draggable>
-                ))}
+                          <Typography
+                            variant="body2"
+                            fontWeight="500"
+                            sx={{
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              color: (theme) => (theme.palette.mode === 'dark' ? '#fff' : '#000'),
+                            }}
+                          >
+                            {board.icon} {board.title}
+                          </Typography>
+                        </ListItem>
+                      )}
+                    </Draggable>
+                  ))}
                 {provided.placeholder}
               </div>
             )}
