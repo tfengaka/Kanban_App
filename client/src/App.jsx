@@ -16,7 +16,7 @@ import Board from './pages/Board';
 
 function App() {
   const theme = createTheme({
-    palette: { mode: 'dark' },
+    palette: { mode: 'light' },
   });
 
   return (

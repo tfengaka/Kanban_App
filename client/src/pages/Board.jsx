@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { DeleteOutlineOutlined, StarBorderOutlined, StarOutlineOutlined } from '@mui/icons-material';
 import { Box, Button, Divider, IconButton, TextField, Typography } from '@mui/material';
-import { StarOutlineOutlined, StarBorderOutlined, DeleteOutlineOutlined } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
 import boardApi from '../api/boardApi';
 import EmojiPicker from '../components/common/EmojiPicker';
-import { useSelector, useDispatch } from 'react-redux';
 import { setBoards } from '../redux/features/boardSlice';
+import { setFavorites } from '../redux/features/favoriteSlice';
 
 let timer;
 const timeOut = 500;
@@ -13,8 +14,10 @@ const timeOut = 500;
 function Board() {
   const { id } = useParams();
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const boards = useSelector((state) => state.board.data);
+  const favorites = useSelector((state) => state.favorites.data);
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [sections, setSections] = useState([]);
@@ -25,14 +28,14 @@ function Board() {
     (async function getBoardDetail() {
       try {
         const res = await boardApi.getBoardDetail(id);
-        // console.log(res);
         setTitle(res.title);
         setDescription(res.description);
         setSections(res.sections);
-        setIsFavorite(res.isFavorite);
+        setIsFavorite(res.favourite);
         setIcon(res.icon);
-      } catch (error) {
-        alert(error);
+      } catch (err) {
+        console.error(err);
+        alert('Have some error!');
       }
     })();
   }, [id]);
@@ -44,11 +47,18 @@ function Board() {
     setIcon(emoji);
     dispatch(setBoards(cloneBoard));
 
+    if (isFavorite) {
+      const cloneFavorites = [...favorites];
+      const favoriteIndex = cloneFavorites.findIndex((e) => e.id === id);
+      cloneFavorites[favoriteIndex] = { ...cloneFavorites[favoriteIndex], icon: emoji };
+      dispatch(setFavorites(cloneFavorites));
+    }
+
     try {
       await boardApi.updateBoardData(id, { icon: emoji });
     } catch (err) {
       console.log(err);
-      alert(err);
+      alert('Have some error!');
     }
   };
 
@@ -56,17 +66,25 @@ function Board() {
     clearTimeout(timer);
     const newTitle = e.target.value;
     setTitle(newTitle);
+
     const cloneBoard = [...boards];
     const index = cloneBoard.findIndex((e) => e.id === id);
     cloneBoard[index] = { ...cloneBoard[index], title: newTitle };
     dispatch(setBoards(cloneBoard));
 
+    if (isFavorite) {
+      const cloneFavorites = [...favorites];
+      const favoriteIndex = cloneFavorites.findIndex((e) => e.id === id);
+      cloneFavorites[favoriteIndex] = { ...cloneFavorites[favoriteIndex], title: newTitle };
+      dispatch(setFavorites(cloneFavorites));
+    }
+
     timer = setTimeout(async () => {
       try {
         await boardApi.updateBoardData(id, { title: newTitle });
       } catch (err) {
-        console.log(err);
-        alert(err);
+        console.error(err);
+        alert('Have some error!');
       }
     }, timeOut);
   };
@@ -80,10 +98,47 @@ function Board() {
       try {
         await boardApi.updateBoardData(id, { description: newDescription });
       } catch (err) {
-        console.log(err);
-        alert(err);
+        console.error(err);
+        alert('Have some error!');
       }
     }, timeOut);
+  };
+
+  const addFavorite = async () => {
+    try {
+      const board = await boardApi.updateBoardData(id, { favourite: !isFavorite });
+      let cloneFavorites = [...favorites];
+      if (isFavorite) {
+        cloneFavorites = cloneFavorites.filter((e) => e.id !== id);
+      } else {
+        cloneFavorites.unshift(board);
+      }
+      dispatch(setFavorites(cloneFavorites));
+      setIsFavorite(!isFavorite);
+    } catch (err) {
+      console.error(err);
+      alert('Have some error!');
+    }
+  };
+
+  const onDeletedBoard = async () => {
+    try {
+      await boardApi.deleteBoard(id);
+      if (isFavorite) {
+        const newFavorites = favorites.filter((e) => e.id !== id);
+        dispatch(setFavorites(newFavorites));
+      }
+      const newBoards = boards.filter((e) => e.id !== id);
+      if (newBoards.length === 0) {
+        navigate('/boards');
+      } else {
+        navigate(`/boards/${newBoards[0].id}`);
+      }
+      dispatch(setBoards(newBoards));
+    } catch (err) {
+      console.error(err);
+      alert('Have some error!');
+    }
   };
 
   return (
@@ -96,10 +151,10 @@ function Board() {
           width: '100%',
         }}
       >
-        <IconButton variant="outlined">
+        <IconButton variant="outlined" onClick={addFavorite}>
           {isFavorite ? <StarOutlineOutlined color="warning" /> : <StarBorderOutlined />}
         </IconButton>
-        <IconButton variant="outlined" color="error">
+        <IconButton variant="outlined" color="error" onClick={onDeletedBoard}>
           <DeleteOutlineOutlined />
         </IconButton>
       </Box>

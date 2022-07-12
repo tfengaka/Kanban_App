@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const taskSchema = new Schema(
 	{
-		SchemaOptions: {
+		section: {
 			type: Schema.Types.ObjectId,
 			ref: "sections",
 			required: true,

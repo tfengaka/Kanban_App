@@ -8,6 +8,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import boardApi from '../../api/boardApi';
 import assets from '../../assets';
 import { setBoards } from '../../redux/features/boardSlice';
+import FavoritesList from './FavoritesList';
 
 function Sidebar() {
   const sidebarWidth = 300;
@@ -65,8 +66,9 @@ function Sidebar() {
       const newListBoards = [res, ...boards];
       dispatch(setBoards(newListBoards));
       navigate(`/boards/${res.id}`);
-    } catch (error) {
-      alert(error);
+    } catch (err) {
+      console.error(err);
+      alert('Have some error!');
     }
   };
 
@@ -116,27 +118,8 @@ function Sidebar() {
           </Box>
         </ListItem>
         <Box sx={{ paddingTop: '10px' }} />
-        <ListItem>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
-            }}
-          >
-            <Typography
-              fontSize={14}
-              fontWeight="700"
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              Favorites
-            </Typography>
-          </Box>
-        </ListItem>
+        <FavoritesList />
+
         <Box sx={{ paddingTop: '10px' }} />
         <ListItem>
           <Box
