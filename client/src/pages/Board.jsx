@@ -1,10 +1,11 @@
-import { DeleteOutlineOutlined, StarBorderOutlined, StarOutlineOutlined } from '@mui/icons-material';
-import { Box, Button, Divider, IconButton, TextField, Typography } from '@mui/material';
+import { DeleteOutlineOutlined, Star, StarBorder } from '@mui/icons-material';
+import { Box, IconButton, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import boardApi from '../api/boardApi';
 import EmojiPicker from '../components/common/EmojiPicker';
+import Sections from '../components/common/Sections';
 import { setBoards } from '../redux/features/boardSlice';
 import { setFavorites } from '../redux/features/favoriteSlice';
 
@@ -152,9 +153,16 @@ function Board() {
         }}
       >
         <IconButton variant="outlined" onClick={addFavorite}>
-          {isFavorite ? <StarOutlineOutlined color="warning" /> : <StarBorderOutlined />}
+          {isFavorite ? <Star color="warning" /> : <StarBorder />}
         </IconButton>
-        <IconButton variant="outlined" color="error" onClick={onDeletedBoard}>
+        <IconButton
+          variant="outlined"
+          onClick={onDeletedBoard}
+          color="error"
+          sx={{
+            color: '#ED213A',
+          }}
+        >
           <DeleteOutlineOutlined />
         </IconButton>
       </Box>
@@ -194,19 +202,7 @@ function Board() {
         </Box>
 
         <Box>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Button>Add Section</Button>
-            <Typography variant="body2" fontWeight="700">
-              {sections.length} Sections
-            </Typography>
-          </Box>
-          <Divider sx={{ margin: '10px 0' }} />
+          <Sections boardID={id} data={sections} />
         </Box>
       </Box>
     </>

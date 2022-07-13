@@ -2,6 +2,7 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import './styles/customScroll.css';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { BrowserRouter, Routes as Switch, Route } from 'react-router-dom';
@@ -16,7 +17,7 @@ import Board from './pages/Board';
 
 function App() {
   const theme = createTheme({
-    palette: { mode: 'light' },
+    palette: { mode: 'dark' },
   });
 
   return (

@@ -17,7 +17,7 @@ router.put("/favorites", verifyToken, boardController.updateFavoritesPosition);
 router.get(
 	"/:id",
 	param("id").custom((value) => {
-		if (!isObjectId(value)) return Promise.reject("Invalid Id");
+		if (!isObjectId(value)) return Promise.reject("Invalid ID");
 		else return Promise.resolve();
 	}),
 	validate,
@@ -28,7 +28,7 @@ router.get(
 router.put(
 	"/:id",
 	param("id").custom((value) => {
-		if (!isObjectId(value)) return Promise.reject("Invalid Id");
+		if (!isObjectId(value)) return Promise.reject("Invalid ID");
 		else return Promise.resolve();
 	}),
 	validate,
@@ -39,7 +39,7 @@ router.put(
 router.delete(
 	"/:id",
 	param("id").custom((value) => {
-		if (!isObjectId(value)) return Promise.reject("Invalid Id");
+		if (!isObjectId(value)) return Promise.reject("Invalid ID");
 		else return Promise.resolve();
 	}),
 	validate,

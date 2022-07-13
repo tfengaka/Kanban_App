@@ -10,9 +10,9 @@ import assets from '../../assets';
 import { setBoards } from '../../redux/features/boardSlice';
 import FavoritesList from './FavoritesList';
 
-function Sidebar() {
-  const sidebarWidth = 300;
+const sidebarWidth = 300;
 
+function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -25,8 +25,9 @@ function Sidebar() {
       try {
         const res = await boardApi.getAllBoards();
         dispatch(setBoards(res));
-      } catch (error) {
-        alert(error);
+      } catch (err) {
+        console.error(err);
+        alert('Have some error!');
       }
     })();
   }, [dispatch]);
@@ -55,8 +56,9 @@ function Sidebar() {
     dispatch(setBoards(cloneBoards));
     try {
       await boardApi.updatePosition({ boards: cloneBoards });
-    } catch (error) {
-      alert(error);
+    } catch (err) {
+      console.error(err);
+      alert('Have some error!');
     }
   };
 
