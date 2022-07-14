@@ -1,9 +1,11 @@
 import { Delete } from '@mui/icons-material';
 import { Backdrop, Box, Divider, Fade, IconButton, Modal, TextField, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import moment from 'moment';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import taskApi from '../../api/taskApi';
+import '../../styles/customEditor.css';
 
 const modalStyle = {
   outline: 'none',
@@ -28,16 +30,72 @@ function TaskModal(props) {
   const [task, setTask] = useState(taskData);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const ckEditorWrapperRef = useRef();
 
   useEffect(() => {
     setTask(taskData);
     setTitle(taskData !== undefined ? taskData.title : '');
     setContent(taskData !== undefined ? taskData.content : '');
+
+    if (taskData !== undefined) {
+      isModalClosed = false;
+      onUpdateEditorHeight();
+    }
   }, [taskData]);
 
   const onClose = () => {
-    props.onUpdate();
+    isModalClosed = true;
+    props.onUpdate(task);
     props.onClose();
+  };
+
+  const onUpdateEditorHeight = () => {
+    setTimeout(() => {
+      if (ckEditorWrapperRef.current) {
+        const box = ckEditorWrapperRef.current;
+        box.querySelector('.ck-editor__editable_inline').style.height = `${box.offsetHeight - 65}px`;
+      }
+    }, timeout);
+  };
+
+  const deleteTask = async () => {
+    try {
+      await taskApi.deleteTask(boardID, task.id);
+      props.onDelete(task);
+      setTask(undefined);
+    } catch (err) {
+      console.error(err);
+      alert('Have Some Error!');
+    }
+  };
+
+  const updateTaskTitle = (e) => {
+    clearTimeout(timer);
+    const newTitle = e.target.value;
+    timer = setTimeout(async () => {
+      await taskApi.updateTask(boardID, task.id, { title: newTitle });
+    }, timeout);
+    task.title = newTitle;
+    setTitle(newTitle);
+    props.onUpdate(task);
+  };
+
+  const updateTaskContent = (event, editor) => {
+    clearTimeout(timer);
+    const data = editor.getData();
+    if (!isModalClosed) {
+      timer = setTimeout(async () => {
+        try {
+          await taskApi.updateTask(boardID, task.id, { content: data });
+        } catch (error) {
+          console.error(error);
+          alert('Have some error!');
+        }
+      }, timeout);
+      task.content = data;
+      setContent(data);
+      props.onUpdate(task);
+    }
   };
 
   return (
@@ -65,6 +123,7 @@ function TaskModal(props) {
                 display: 'flex',
                 alignItems: 'center',
               }}
+              onClick={deleteTask}
             >
               <Delete />
             </IconButton>
@@ -79,7 +138,7 @@ function TaskModal(props) {
           >
             <TextField
               value={title}
-              // onChange={}
+              onChange={updateTaskTitle}
               placeholder="Untitled"
               variant="outlined"
               fullWidth
@@ -103,14 +162,22 @@ function TaskModal(props) {
             </Box>
             <Divider sx={{ margin: '10px 12px' }} />
             <Box
+              ref={ckEditorWrapperRef}
               sx={{
                 padding: '8px 16px',
-                height: '100%',
+                position: 'relative',
+                height: '80%',
                 overflowX: 'hidden',
                 overflowY: 'auto',
               }}
             >
-              <CKEditor editor={ClassicEditor} data={content} />
+              <CKEditor
+                editor={ClassicEditor}
+                data={content}
+                onChange={updateTaskContent}
+                onFocus={onUpdateEditorHeight}
+                onBlur={onUpdateEditorHeight}
+              />
             </Box>
           </Box>
         </Box>

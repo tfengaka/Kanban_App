@@ -108,9 +108,21 @@ function Sections(props) {
     }
   };
 
-  const onDeleteTask = () => {};
+  const onUpdateTask = (task) => {
+    const cloneSections = [...sections];
+    const sectionIndex = cloneSections.findIndex((e) => e.id === task.section.id);
+    const taskIndex = cloneSections[sectionIndex].tasks.findIndex((e) => e.id === task.id);
+    cloneSections[sectionIndex].tasks[taskIndex] = task;
+    setSections(cloneSections);
+  };
 
-  const onUpdateTask = () => {};
+  const onDeleteTask = (task) => {
+    const cloneSections = [...sections];
+    const sectionIndex = cloneSections.findIndex((e) => e.id === task.section.id);
+    const taskIndex = cloneSections[sectionIndex].tasks.findIndex((e) => e.id === task.id);
+    cloneSections[sectionIndex].tasks.splice(taskIndex, 1);
+    setSections(cloneSections);
+  };
 
   return (
     <>
